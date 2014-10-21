@@ -4,6 +4,8 @@ package PlanEvac;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
+
 import turtlekit.kernel.Patch;
 import turtlekit.kernel.TurtleKit.Option;
 import Utiles.MethodeUtileEnv;
@@ -18,12 +20,11 @@ public class PlanEvacuation extends MethodeUtileEnv{
 	private static final int couleurMur = 0; // salle noire
 		
 	
-	public void activate()  {
-		
-		
+	public void activate()  {	
 		super.activate();
 		// construction de la grille �� partie de la classe m��re
 			try {
+				System.out.println(nomfichier);
 				buffer = super.importerImage(nomfichier);  // importation de l'image
 			} catch (IOException e) {e.printStackTrace();buffer = null;}		
 			/* adaptation de l'image du plan
@@ -31,14 +32,13 @@ public class PlanEvacuation extends MethodeUtileEnv{
 			 * on oriente une couleur vers le blanc ou le noir selon le niveau de gris(couleurLimite)
 			 */
 			super.adapterImage(buffer,couleurSalle,couleurMur,couleurLimite);
-		//	setHeight( buffer.getHeight() );
-			//setWidth( buffer.getHeight());
+		//setHeight( buffer.getHeight() );
+		//setWidth( buffer.getHeight());
 			for (int i = 0; i < buffer.getWidth(); i++) {
 				for (int j =  buffer.getHeight()-1; j > 0; j--) {
 					Patch p = getPatch(i, j); 
 					p.setColor(new Color(buffer.getRGB(i, j)));
-				}
-				
+				}			
 			}
               //activation
             //this.windowDimension = Integer.toString( buffer.getHeight() ) + "," + Integer.toString( buffer.getWidth());

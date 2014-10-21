@@ -21,20 +21,22 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+
 import javax.imageio.ImageIO;
 import turtlekit.kernel.TKEnvironment;
 
 public abstract class MethodeUtileEnv extends TKEnvironment{
 
-	protected BufferedImage importerImage(String s) throws IOException {
+	protected BufferedImage importerImage(String  s) throws IOException {
 		/**
 		 * @param path : contient le chemin d'accés a limage
 		 * @return 
 		 */
-		//URL path = getClass().getResource("/projetA2/src/plan.png");
+		//URL path = getClass().getResource("/TurtleKitPlanEvacuation/0.1/Images/plan.png");
 		try{
-			//return ImageIO.read( path );
 			return ImageIO.read( new File("/home/spiraltek/Documents/IUT/S3/Projet Tuteuré/TurtleKitPlanEvacuation/0.1/Images/plan.png"));
+			//return ImageIO.read(new File(path.getFile()));
 		} catch (IOException e) {e.printStackTrace();
 		return null;}
 		

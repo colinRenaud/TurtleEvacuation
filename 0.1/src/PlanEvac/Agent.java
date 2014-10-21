@@ -78,7 +78,8 @@ public class Agent extends AgentTurtle {
 	
 	protected String perdu(){
 		/**
-		 * @return le changement d'état possible pour un agent perdu
+		 * @return l'état possible d'un agent perdu : etrePanique ou  etreSuiveur ou  Perdu
+		 * 
 		 */
 		List<Turtle> liste = getOtherTurtles( this.visibilite, false);
 		if ( nbPas > probaPaniquer ){
@@ -96,7 +97,7 @@ public class Agent extends AgentTurtle {
 	
 	protected String meneur() {	
 		/**
-		 * @return le changement d'état possible pour un agent meneur
+		 * @return  d'état possible pour un agent meneur : meneur
 		 */
 		List<Turtle> liste = getOtherTurtlesWithRole( this.visibilite, true, "suiveur");
 		//plus de gens le suive, moins il avance vite
@@ -117,7 +118,7 @@ public class Agent extends AgentTurtle {
 	
 	protected String suiveur(){
 		/**
-		 * @return le changement d'état possible pour un agent suiveur
+		 * @return létat possible pour un agent suiveur : 
 		 * 
 		 */
 		List<Turtle> liste = getOtherTurtlesWithRole( this.visibilite, false, "meneur");
