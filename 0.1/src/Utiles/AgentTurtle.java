@@ -1,5 +1,6 @@
-import java.awt.Color;
+package Utiles;
 
+import java.awt.Color;
 import turtlekit.kernel.Turtle;
 import turtlekit.pheromone.Pheromone;
 

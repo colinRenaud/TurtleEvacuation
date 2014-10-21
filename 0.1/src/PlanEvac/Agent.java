@@ -1,10 +1,14 @@
+/*
+ * @autoh : duffau johnathan , rabaud eliot , colin renaud
+ */
+
+package PlanEvac;
+
 import static turtlekit.kernel.TurtleKit.Option.startSimu;
-
 import java.awt.Color;
-
-
 import java.util.List;
 
+import Utiles.AgentTurtle;
 import turtlekit.kernel.TKEnvironment;
 import turtlekit.kernel.Turtle;
 import turtlekit.kernel.TurtleKit.Option;
@@ -14,7 +18,6 @@ import turtlekit.pheromone.Pheromone;
 public class Agent extends AgentTurtle {
 	
 
-	
 	protected Color couleurPerdu = Color.pink;
 	protected Color couleurMeneur = Color.red;
 	protected Color couleurSuiveur = Color.cyan;
@@ -34,12 +37,18 @@ public class Agent extends AgentTurtle {
 	}
 	
 	protected boolean getAlerte(){
-		return this.alerte;
+		/*
+		 * @return : si l'agent est alerté ou non
+		 */
+		return alerte;
 	}
 	
 	protected String travailler(){
+		/*
+		 * @return l'action à réaliser si il y a une alerte ou non lorsque l'agent travaille
+		 */
 		List<Turtle> t = getOtherTurtles(20, true);
-		if ( this.alerte == true ){
+		if ( alerte == true ){
 			return "evacuer";
 		}
 		/*if ( ((agent) t.get(0)).getAlerte() == true ){
@@ -51,10 +60,14 @@ public class Agent extends AgentTurtle {
 	
 	
 	protected String evacuer(){
-		if ( this.courage > 90 ){
+		/*
+		 * @return le comportement de l'agent lors de l'alerte selon son courage
+		 * 
+		 */
+		if (courage > 90 ){
 			return "etreMeneur";
 		}
-		else if ( this.courage < 30){
+		else if (courage < 30){
 			return "etrePerdu";
 		}
 		else{
@@ -64,20 +77,27 @@ public class Agent extends AgentTurtle {
 	
 	
 	protected String perdu(){
+		/**
+		 * @return le changement d'état possible pour un agent perdu
+		 */
 		List<Turtle> liste = getOtherTurtles( this.visibilite, false);
 		if ( nbPas > probaPaniquer ){
 			return "etrePanique";
 		}
-		else if( liste.size() > 2){
+		else if( liste.size() > 2){ 
 			return "etreSuiveur";}
-		else{
+		else{    
 			wiggle();
 			nbPas++;
 			return "perdu";
 		}
 	}
 	
-	protected String meneur(){
+	
+	protected String meneur() {	
+		/**
+		 * @return le changement d'état possible pour un agent meneur
+		 */
 		List<Turtle> liste = getOtherTurtlesWithRole( this.visibilite, true, "suiveur");
 		//plus de gens le suive, moins il avance vite
 		double v = liste.size()*0.1;
@@ -96,6 +116,10 @@ public class Agent extends AgentTurtle {
 	}
 	
 	protected String suiveur(){
+		/**
+		 * @return le changement d'état possible pour un agent suiveur
+		 * 
+		 */
 		List<Turtle> liste = getOtherTurtlesWithRole( this.visibilite, false, "meneur");
 		
 		if ( liste.isEmpty() == false ){
@@ -131,6 +155,9 @@ public class Agent extends AgentTurtle {
 	}
 	
 	protected String panique(){
+		/**
+		 * @return le changement d'état possible pour un agent paniqué
+		 */
 		double p = Math.random()*100;
 		if ( p < 10 ){
 			wiggle();

@@ -15,19 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
+package Utiles;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-
 import javax.imageio.ImageIO;
-
-import turtlekit.kernel.Patch;
 import turtlekit.kernel.TKEnvironment;
-import turtlekit.kernel.TurtleKit.Option;
 
 public abstract class MethodeUtileEnv extends TKEnvironment{
 
@@ -39,7 +34,7 @@ public abstract class MethodeUtileEnv extends TKEnvironment{
 		//URL path = getClass().getResource("/projetA2/src/plan.png");
 		try{
 			//return ImageIO.read( path );
-			return ImageIO.read( new File("/media/usb0/workspace/planEvacuation/src/plan.png"));
+			return ImageIO.read( new File("/home/spiraltek/Documents/IUT/S3/Projet Tuteuré/TurtleKitPlanEvacuation/0.1/Images/plan.png"));
 		} catch (IOException e) {e.printStackTrace();
 		return null;}
 		
