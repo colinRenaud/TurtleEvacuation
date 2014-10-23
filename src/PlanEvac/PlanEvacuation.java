@@ -11,20 +11,28 @@ import turtlekit.kernel.TurtleKit.Option;
 import Utiles.MethodeUtileEnv;
 
 public class PlanEvacuation extends MethodeUtileEnv{
-	
+	/**
+	 * @param buffer : buffer qui contient les coordonnées du plan
+	 * @param windowDimension : Dimension de la fenetre pour le viewer TK
+	 * @param nomFichier : nom de l'image du plan à importer
+	 * @param couleurLimite : couleur permettant de délimiter les images plus blanches ou plus noires
+	 * @param couleurSalle : couleur de la salle du batiment
+	 * @param couleurMur : couleur des murs du batiment
+	 */
 	private BufferedImage buffer;
-	private static String windowDimension = Integer.toString(500) + ","  + Integer.toString(500);
-	private String nomfichier = "plan.png";
-	private static final int couleurLimite = 142 ;
-	private static final int couleurSalle = 250; // mur blanc
-	private static final int couleurMur = 0; // salle noire
+	private final static String windowDimension = Integer.toString(500) + ","  + Integer.toString(500);
+	private final String nomfichier = "plan.png";
+	private final int couleurLimite = 142 ;
+	private final int couleurSalle = 250; // mur blanc
+	private final int couleurMur = 0; // salle noire
 		
 	
 	public void activate()  {	
 		super.activate();
-		// construction de la grille �� partie de la classe m��re
+		/*
+		 *  construction de la grille �� partie de la classe m��re
+		 */
 			try {
-				System.out.println(nomfichier);
 				buffer = super.importerImage(nomfichier);  // importation de l'image
 			} catch (IOException e) {e.printStackTrace();buffer = null;}		
 			/* adaptation de l'image du plan
