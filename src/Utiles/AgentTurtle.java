@@ -1,14 +1,12 @@
 package Utiles;
 
-import java.awt.Color;
 import turtlekit.kernel.Turtle;
 import turtlekit.pheromone.Pheromone;
-
 
 public abstract class AgentTurtle extends Turtle  {
 	/**
 	 * @param nbPas : nombre de pas effectués par l'agent tout au long de la simu
-	 * @param visibiité : rayon de detection des agents alentours
+	 * @param visibilité : rayon de detection des agents alentours
 	 * @param probaPaniquer : nombre de pas avant la panique
 	 * @param courage : courage de l'agent entre 0 et 100
 	 * @param role : role de l'agent lors de la simulation
@@ -38,68 +36,74 @@ public abstract class AgentTurtle extends Turtle  {
 
 	public double distance ( double x, double y){
 		/*
-		 * @return la distance entre les coordonnées courantes de l'agent et (x,y)
+		 * @return the distance between the current agent and the (x,y) position
 		 */
 		return Math.sqrt( Math.pow(this.getX() - x, 2) + Math.pow(this.getY() - y, 2) );
 	}
 
-	protected boolean etreDerriere( double h, double xm, double ym){
+	protected boolean etreDerriere( double angle, double xm, double ym){
 		/**
 		 * @return true si l'agent est derriere la tortue a suivre , false sinon
 		 */
-
-		double angle = h;
-		double y = Math.cos(Math.toRadians(angle))*this.visibilite;
-		double x = Math.sin(Math.toRadians(angle))*this.visibilite;
-
 		//on defini les coordonn��es du cercle derriere
-		double xo = xm - y;
-		double yo = ym - x;
+		double xo = xm - Math.cos(Math.toRadians(angle))*visibilite;
+		double yo = ym - Math.sin(Math.toRadians(angle))*visibilite;
 		//la tortue sera derriere la meneuse si elle est dans le rayon du cercle de centre O(xo, yo)
-		if ( this.distance(xo,yo) < this.visibilite ){
-			return true;
-		}
-		else{
-			return false;
-		}
+		return distance(xo,yo) < visibilite ;
 	}
 
 	/*protected void follow( Turtle t ){// marche pas
 		int x = t.xcor();
 		int y = t.ycor();
-
 		double d = this.distance(x,y);
-
 		double x1 = (this.getX() - x)/(d/2);
 		double y1 = (this.getY() - y)/(d/2);
-
 		setXY(x1,y1);
 	}*/
 
+	protected boolean collisionAgent() {
+		/**
+		 * @return : true if the next patch is a turtle 
+		 */
+		return ! getNextPatch().isEmpty();
+	}
+
 	protected boolean collisionMur(){
 		/**
-		 * @return si un agent va entrer en collision avec un mur
+		 * @return true if the next patch is a wall (white)
 		 */
-
-		if ( getNextPatch().getColor() == Color.black ){
-			return false;
-		}
-		return true;
+		return getNextPatch().getColor().getRed() == 255;
 	}
 
 	protected void fdc ( double n ){
 		/**
-		 * avancement si il n'y pas de collision
+		 * @param n : number of steps to make 
+		 * the agents move if there isn't collision on the next patch
 		 */
-		if ( collisionMur() == false){
-			fd(1);
-		}
+		if(getNextPatch() != null) {
+			if(collisionAgent())
+				fd(0);
+			else if (! collisionMur())
+				fd(n);
+			else{
+				setHeading(getHeading()+100);
+				randomHeading(40);
+			}
+		}	
 	}
 
 	protected void wigglec (){
-		this.randomHeading();
-		if ( collisionMur() == false){
-			fd(1);
+		/**
+		 * 
+		 */
+		this.randomHeading(120);
+		if(getNextPatch() != null) {
+			if(collisionAgent()) 
+				fd(0);
+			else if (! collisionMur())
+				fd(1);
+			else
+				fd(0);
 		}
 	}
 }

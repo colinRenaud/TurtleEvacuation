@@ -23,41 +23,41 @@ public class PlanEvacuation extends MethodeUtileEnv{
 	private final static String windowDimension = Integer.toString(500) + ","  + Integer.toString(500);
 	private final String nomfichier = "plan.png";
 	private final int couleurLimite = 142 ;
-	private final int couleurSalle = 250; // mur blanc
-	private final int couleurMur = 0; // salle noire
-		
-	
+	private final int couleurSalle = 255; // mur blanc
+	private final int couleurMur = 1; // salle noire
+
+
 	public void activate()  {	
-		super.activate();
 		/*
-		 *  construction de la grille �� partie de la classe m��re
+		 *  construction de la grille à partie de la classe mère
 		 */
-			try {
-				buffer = super.importerImage(nomfichier);  // importation de l'image
-			} catch (IOException e) {e.printStackTrace();buffer = null;}		
-			/* adaptation de l'image du plan
-			 * les patch seront soit des murs soit la salle
-			 * on oriente une couleur vers le blanc ou le noir selon le niveau de gris(couleurLimite)
-			 */
-			super.adapterImage(buffer,couleurSalle,couleurMur,couleurLimite);
-		//setHeight( buffer.getHeight() );
-		//setWidth( buffer.getHeight());
-			for (int i = 0; i < buffer.getWidth(); i++) {
-				for (int j =  buffer.getHeight()-1; j > 0; j--) {
-					Patch p = getPatch(i, j); 
-					p.setColor(new Color(buffer.getRGB(i, j)));
-				}			
-			}
-              //activation
-            //this.windowDimension = Integer.toString( buffer.getHeight() ) + "," + Integer.toString( buffer.getWidth());
+		super.activate();
+		try {
+			buffer = super.importerImage(nomfichier);  // importation de l'image
+		} catch (IOException e) {
+			e.printStackTrace();
+			buffer = null;
+		}		
+		/* adaptation de l'image du plan
+		 * les patch seront soit des murs soit la salle
+		 * on oriente une couleur vers le blanc ou le noir selon le niveau de gris(couleurLimite)
+		 */
+		super.adapterImage(buffer,couleurSalle,couleurMur,couleurLimite);
+		for (int i = 0; i < buffer.getWidth(); i++) {
+			for (int j = buffer.getHeight()-1; j > 0; j--) {
+				Patch p = getPatch(i, j); 
+				p.setColor(new Color(buffer.getRGB(i, j)));
+			}			
+		}
 	}
-	
-	
+
+
 	public static void main(String[] args) {	
 		executeThisEnvironment(	
-				Option.turtles.toString(),Agent.class.getName()+",50",
+				Option.turtles.toString(),Agent.class.getName()+",30",
 				Option.envDimension.toString(), windowDimension,
 				Option.startSimu.toString()
+				//,Option.noWrap.toString()
 				);
 	}
 }

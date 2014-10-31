@@ -5,12 +5,10 @@
 
 package PlanEvac;
 
-import static turtlekit.kernel.TurtleKit.Option.startSimu;
 import java.awt.Color;
 import java.util.List;
 import Utiles.AgentTurtle;
 import turtlekit.kernel.Turtle;
-import turtlekit.kernel.TurtleKit.Option;
 
 public class Agent extends AgentTurtle {
 
@@ -25,7 +23,7 @@ public class Agent extends AgentTurtle {
 	protected final Color couleurPerdu = Color.pink;
 	protected final Color couleurMeneur = Color.red;
 	protected final Color couleurSuiveur = Color.cyan;
-	protected final Color couleurPanique = Color.white;
+	protected final Color couleurPanique = Color.green;
 	protected final Color couleurSuivre = Color.orange;
 
 	protected void activate(){
@@ -33,14 +31,16 @@ public class Agent extends AgentTurtle {
 		 * active un agent 
 		 */
 		super.activate();
-		this.nbPas = 0;
-		this.courage = (int)(Math.random()*100);
-		this.alerte = true;
-		this.xdep = this.xcor();
-		this.ydep = this.ycor();
-		this.role = "travailler";
+		nbPas = 0;
+		courage = (int)(Math.random()*100);
+		alerte = true;
+		xdep = xcor();
+		ydep = ycor();
+		role = "travailler";
 		setNextAction("travailler");
-		traine = getEnvironment().getPheromone("te",1,7);
+		//traine = getEnvironment().getPheromone("te",1,7);
+		while(getPatch().getColor().getRed() != 1) 
+			randomLocation();
 	}
 
 	protected boolean getAlerte(){
@@ -61,7 +61,7 @@ public class Agent extends AgentTurtle {
 		/*if ( ((agent) t.get(0)).getAlerte() == true ){
 			return "evacuer";
 		}	*/	
-		resterPasLoin( this.xdep, this.ydep, 5);
+		resterPasLoin( xdep, ydep, 5);
 		return "travailler";
 	}
 
@@ -88,14 +88,14 @@ public class Agent extends AgentTurtle {
 		 * @return l'état possible d'un agent perdu : etrePanique ou  etreSuiveur ou  Perdu
 		 * 
 		 */
-		List<Turtle> liste = getOtherTurtles( this.visibilite, false);
+		List<Turtle> liste = getOtherTurtles( visibilite, false);
 		if ( nbPas > probaPaniquer ){
 			return "etrePanique";
 		}
 		else if( liste.size() > 2){ 
 			return "etreSuiveur";}
 		else{    
-			wiggle();
+			wigglec();
 			nbPas++;
 			return "perdu";
 		}
@@ -106,20 +106,18 @@ public class Agent extends AgentTurtle {
 		/**
 		 * @return  d'état possible pour un agent meneur : meneur
 		 */
-		List<Turtle> liste = getOtherTurtlesWithRole( this.visibilite, true, "suiveur");
+		List<Turtle> liste = getOtherTurtlesWithRole( visibilite, true, "suiveur");
 		//plus de gens le suive, moins il avance vite
 		double v = liste.size()*0.1;
 
 		if ( nbPas < 5 ){//nbr de pas avant de changer de direction
-			fd(1-v);
+			fdc(1-v);
 			nbPas++;
-			return "meneur";
 		}
 		else{
-			double val = Math.random()*60 - 30;//variation de leur direction de deplacement
 			nbPas = 0;
-			setHeading( getHeading() + val );
-		}		
+			randomHeading(60);
+		}
 		return "meneur";
 	}
 
@@ -128,10 +126,10 @@ public class Agent extends AgentTurtle {
 		 * @return létat possible pour un agenten recherche de meneur à suivre : 
 		 * 
 		 */
-		List<Turtle> liste = getOtherTurtlesWithRole( this.visibilite, false, "meneur");
+		List<Turtle> liste = getOtherTurtlesWithRole( visibilite, false, "meneur");
 
 		if ( liste.isEmpty() == false ){
-			wiggle();
+			wigglec();
 			return "partirSuivre";
 		}
 		else if(nbPas > 500){
@@ -140,7 +138,7 @@ public class Agent extends AgentTurtle {
 		}
 		else{
 			nbPas++;
-			wiggle();
+			wigglec();
 			return "suiveur";
 		}	
 	}
@@ -149,14 +147,14 @@ public class Agent extends AgentTurtle {
 		/**
 		 * @return l'etat possible pour un élement qui suit un meneur
 		 */
-		Turtle t = getNearestTurtleWithRole( this.visibilite , "meneur");
+		Turtle t = getNearestTurtleWithRole( visibilite , "meneur");
 		if ( t == null ){
-			wiggle();
+			wigglec();
 			return "etreSuiveur";
 		}
 		else if ( etreDerriere(t.getHeading(), t.getX(), t.getY() ) ){
 			setHeading( t.getHeading() );
-			fd(1);
+			fdc(1);
 			//follow(t); en attente de validation
 			return "suivre";	
 		}
@@ -171,9 +169,9 @@ public class Agent extends AgentTurtle {
 		 */
 		double p = Math.random()*100;
 		if ( p < 10 ){
-			wiggle();
+			wigglec();
 		}
-		if ( getOtherTurtlesWithRole(this.visibilite, false,"meneur").size() > 0){
+		if ( getOtherTurtlesWithRole(visibilite, false,"meneur").size() > 0){
 			return "etreSuiveur";
 		}
 		return "panique";
@@ -183,57 +181,47 @@ public class Agent extends AgentTurtle {
 		/**
 		 * @return l'état possible pour un agent qui est perdu
 		 */
-		this.visibilite = 15;
+		visibilite = 15;
 		setColor( couleurPerdu );
-		giveUpRole( this.role );
-		this.role = "perdu";
-		playRole( this.role);
+		giveUpRole( role );
+		role = "perdu";
+		playRole( role);
 
-		this.probaPaniquer = Math.random()*500 + 1000;
+		probaPaniquer = Math.random()*500 + 1000;
 		return "perdu";
 	}
 
 	protected String etreSuiveur(){
-		this.visibilite = 15;
+		visibilite = 15;
 		setColor( couleurSuiveur );
-		giveUpRole( this.role );
-		this.role = "suiveur";
-		playRole( this.role);
+		giveUpRole( role );
+		role = "suiveur";
+		playRole( role);
 		return "suiveur";
 	}
 
 	protected String partirSuivre(){
-		this.visibilite = 15;
+		visibilite = 15;
 		setColor( couleurSuivre );
 		return "suivre";
 	}
 
 	protected String etreMeneur(){
-		this.visibilite = 15;
+		visibilite = 15;
 		setColor( couleurMeneur );
-		giveUpRole(this.role);
-		this.role = "meneur";
-		playRole(this.role);
+		giveUpRole(role);
+		role = "meneur";
+		playRole(role);
 		return "meneur";
 	}
 
 	protected String etrePanique(){
-		this.visibilite = 10;
+		visibilite = 10;
 		setColor( couleurPanique );
-		giveUpRole( this.role );
-		this.role = "panique";
-		playRole( this.role );
+		giveUpRole( role );
+		role = "panique";
+		playRole( role );
 		return "panique";
 	}
 
-
-	public static void main(String[] args) {
-
-		executeThisTurtle(10
-				, Option.envDimension.toString()
-				,Option.cuda.toString()
-				,startSimu.toString()
-				);
-
-	}
 }

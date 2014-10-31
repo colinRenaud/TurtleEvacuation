@@ -7,7 +7,6 @@ package Utiles;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 import javax.imageio.ImageIO;
 import turtlekit.kernel.TKEnvironment;
 
@@ -15,22 +14,23 @@ public abstract class MethodeUtileEnv extends TKEnvironment{
 
 	protected BufferedImage importerImage(String  fichier) throws IOException {
 		/**
-		 * @param fichier : nom de l'image correspondant au plan
-		 * @return un BufferedImage qui stocke les coordonnées de l'image
+		 * @param fichier : plan's picture name 
+		 * @return a BufferedImage which  store the picture coordinates
 		 */
-		URL path = getClass().getResource("/Images/"+fichier);
 		try{
-			return ImageIO.read(path);
-		} catch (IOException e) {e.printStackTrace();
-		return null;}		
+			return ImageIO.read(getClass().getResource("/Images/"+fichier)); 
+		} catch (IOException e) {
+			e.printStackTrace();
+		    return null;
+		}		
 	}
 
 	protected void adapterImage(BufferedImage buffer , int c1 , int c2, int limit) {
 		/**
-		 * @param Buffer  : contient le buffer stockant les coordonnées de l'image
+		 * @param Buffer  : buffer which store the picture coordinates
 		 * @param limit : borne intermediaire pour modifier une couleur
-		 * @param c1 : couleur 1 
-		 * @param c2 = couleur 2
+		 * @param c1 : color 1 
+		 * @param c2 = color 2
 		 * permet d'adapter l'image a une situation precise 
 		 * en appliquant une transformation sur les pixels de l'image de facon a  avoir 2 couleurs seulement
 		 * cette transformation permet de simplifier l'image afin de pouvoir l'exploiter sous turtleKit
@@ -38,10 +38,9 @@ public abstract class MethodeUtileEnv extends TKEnvironment{
 
 		for (int i = 0; i < buffer.getWidth(); i++) {
 			for (int j = 0; j < buffer.getHeight(); j++) {
-				// creation d'une couleur ?? partie des composantes RGB du pixel
+				// color creation from pixel'RGB components
 				Color pixelColor = new Color(buffer.getRGB(i,j));  
 
-				// recuperer les composantes RGB  de cette couleur
 				int r=pixelColor.getRed();
 				int g=pixelColor.getGreen();
 				int b=pixelColor.getBlue();				
