@@ -5,15 +5,15 @@ import turtlekit.pheromone.Pheromone;
 
 public abstract class AgentTurtle extends Turtle  {
 	/**
-	 * @param nbPas : nombre de pas effectués par l'agent tout au long de la simu
-	 * @param visibilité : rayon de detection des agents alentours
-	 * @param probaPaniquer : nombre de pas avant la panique
-	 * @param courage : courage de l'agent entre 0 et 100
-	 * @param role : role de l'agent lors de la simulation
-	 * @param alerte : alerté de l'incendie ou non 
-	 * @param xdep : position de départ en x
-	 * @param ydep : position de départ en y
-	 * @param traine : traces laissées par un agent
+	 * @param nbPas : number of steps throughout the simulation
+	 * @param visibilité : detection'radius of neighboring agents
+	 * @param probaPaniquer : agent'probability to be panic
+	 * @param courage : agent'bravery between 0 and 100
+	 * @param role : current agent'role
+	 * @param alerte : the agent is alerted or not
+	 * @param xdep : initial x coordinate
+	 * @param ydep : initial y coordinate
+	 * @param traine : traces left by the agent
 	 */
 
 	protected int nbPas;
@@ -41,10 +41,14 @@ public abstract class AgentTurtle extends Turtle  {
 		return Math.sqrt( Math.pow(this.getX() - x, 2) + Math.pow(this.getY() - y, 2) );
 	}
 
-	protected boolean etreDerriere( double angle, double xm, double ym){
+	protected boolean isBehind( double angle, double xm, double ym){
 		/**
-		 * @return true si l'agent est derriere la tortue a suivre , false sinon
+		 * @return true if the agent is behing the turtle to follow  , false else
+		 * @param xm : other turtle x coordinate
+		 * @param ym : other turtle y coordinate
+		 * @param angle : current turtle'visibility radius
 		 */
+		
 		//on defini les coordonn��es du cercle derriere
 		double xo = xm - Math.cos(Math.toRadians(angle))*visibilite;
 		double yo = ym - Math.sin(Math.toRadians(angle))*visibilite;
@@ -52,7 +56,8 @@ public abstract class AgentTurtle extends Turtle  {
 		return distance(xo,yo) < visibilite ;
 	}
 
-	/*protected void follow( Turtle t ){// marche pas
+	/*protected void follow( Turtle t ){
+	 // doesn't work for the moment
 		int x = t.xcor();
 		int y = t.ycor();
 		double d = this.distance(x,y);
@@ -61,14 +66,14 @@ public abstract class AgentTurtle extends Turtle  {
 		setXY(x1,y1);
 	}*/
 
-	protected boolean collisionAgent() {
+	protected boolean AgentCollision() {
 		/**
 		 * @return : true if the next patch is a turtle 
 		 */
 		return ! getNextPatch().isEmpty();
 	}
 
-	protected boolean collisionMur(){
+	protected boolean WallCollision(){
 		/**
 		 * @return true if the next patch is a wall (white)
 		 */
@@ -81,9 +86,9 @@ public abstract class AgentTurtle extends Turtle  {
 		 * the agents move if there isn't collision on the next patch
 		 */
 		if(getNextPatch() != null) {
-			if(collisionAgent())
+			if(AgentCollision())
 				fd(0);
-			else if (! collisionMur())
+			else if (! WallCollision())
 				fd(n);
 			else{
 				setHeading(getHeading()+100);
@@ -98,9 +103,9 @@ public abstract class AgentTurtle extends Turtle  {
 		 */
 		this.randomHeading(120);
 		if(getNextPatch() != null) {
-			if(collisionAgent()) 
+			if(AgentCollision()) 
 				fd(0);
-			else if (! collisionMur())
+			else if (! WallCollision())
 				fd(1);
 			else
 				fd(0);

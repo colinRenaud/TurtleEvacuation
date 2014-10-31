@@ -28,7 +28,7 @@ public class Agent extends AgentTurtle {
 
 	protected void activate(){
 		/**
-		 * active un agent 
+		 * active a  agent 
 		 */
 		super.activate();
 		nbPas = 0;
@@ -45,17 +45,17 @@ public class Agent extends AgentTurtle {
 
 	protected boolean getAlerte(){
 		/*
-		 * @return : si l'agent est alerté ou non
+		 * @return true if the agent is alerted , flase is not
 		 */
 		return alerte;
 	}
 
 	protected String travailler(){
 		/*
-		 * @return l'action à réaliser si il y a une alerte ou non lorsque l'agent travaille
+		 * @return the action to make if there's an alerte when the agent works
 		 */
 		List<Turtle> t = getOtherTurtles(20, true);
-		if ( alerte == true ){
+		if (alerte){
 			return "evacuer";
 		}
 		/*if ( ((agent) t.get(0)).getAlerte() == true ){
@@ -71,29 +71,24 @@ public class Agent extends AgentTurtle {
 		 * @return le comportement de l'agent lors de l'alerte selon son courage
 		 * 
 		 */
-		if (courage > 90 ){
+		if (courage > 90 )
 			return "etreMeneur";
-		}
-		else if (courage < 30){
+		else if (courage < 30)
 			return "etrePerdu";
-		}
-		else{
+		else
 			return "etreSuiveur";
-		}
 	}
 
 
 	protected String perdu(){
 		/**
 		 * @return l'état possible d'un agent perdu : etrePanique ou  etreSuiveur ou  Perdu
-		 * 
 		 */
 		List<Turtle> liste = getOtherTurtles( visibilite, false);
-		if ( nbPas > probaPaniquer ){
+		if ( nbPas > probaPaniquer )
 			return "etrePanique";
-		}
-		else if( liste.size() > 2){ 
-			return "etreSuiveur";}
+		else if( liste.size() > 2)
+			return "etreSuiveur";
 		else{    
 			wigglec();
 			nbPas++;
@@ -152,7 +147,7 @@ public class Agent extends AgentTurtle {
 			wigglec();
 			return "etreSuiveur";
 		}
-		else if ( etreDerriere(t.getHeading(), t.getX(), t.getY() ) ){
+		else if (isBehind(t.getHeading(), t.getX(), t.getY() ) ){
 			setHeading( t.getHeading() );
 			fdc(1);
 			//follow(t); en attente de validation
@@ -168,12 +163,10 @@ public class Agent extends AgentTurtle {
 		 * @return le changement d'état possible pour un agent paniqué
 		 */
 		double p = Math.random()*100;
-		if ( p < 10 ){
+		if ( p < 10 )
 			wigglec();
-		}
-		if ( getOtherTurtlesWithRole(visibilite, false,"meneur").size() > 0){
+		if ( getOtherTurtlesWithRole(visibilite, false,"meneur").size() > 0)
 			return "etreSuiveur";
-		}
 		return "panique";
 	}
 
@@ -186,7 +179,6 @@ public class Agent extends AgentTurtle {
 		giveUpRole( role );
 		role = "perdu";
 		playRole( role);
-
 		probaPaniquer = Math.random()*500 + 1000;
 		return "perdu";
 	}
