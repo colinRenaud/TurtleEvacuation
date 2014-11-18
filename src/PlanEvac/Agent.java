@@ -11,53 +11,63 @@ import Utiles.AgentTurtle;
 import turtlekit.kernel.Turtle;
 
 public class Agent extends AgentTurtle {
+	
+	/**
+	 * color of a left agent
+	 */
+	private final Color couleurPerdu = Color.pink;
+	/**
+	 * color of a leader agent
+	 */
+	private final Color couleurMeneur = Color.red;
+	/**
+	 * color of a agent who is searching for a leader
+	 */
+	private final Color couleurSuiveur = Color.cyan;
+	/**
+	 * color of a panic agent
+	 */
+	private final Color couleurPanique = Color.green;
+	/**
+	 * color of a gent who follow a leader
+	 */
+	private final Color couleurSuivre = Color.orange;
+	private int pasTmp;
+	
 
 	/**
-	 * @param couleurPerdu : couleur d'un agent perdu 
-	 * @param couleurMeneur : couleur d'un agent meneur
-	 * @param couleurSuiveur : couleur d'un agent qui et en recherche de meneur
-	 * @param couleurPanique : couleur d'un agent paniqué 
-	 * @param couleurSuivre : couleur d'un agent qui suit un meneur
+	 * activate an agent 
 	 */
-
-	protected final Color couleurPerdu = Color.pink;
-	protected final Color couleurMeneur = Color.red;
-	protected final Color couleurSuiveur = Color.cyan;
-	protected final Color couleurPanique = Color.green;
-	protected final Color couleurSuivre = Color.orange;
-
 	protected void activate(){
-		/**
-		 * active a  agent 
-		 */
+		
 		super.activate();
 		nbPas = 0;
+		pasTmp= 0;
 		courage = (int)(Math.random()*100);
 		alerte = true;
 		xdep = xcor();
 		ydep = ycor();
-		role = "travailler";
+		role = "travailler";		
 		setNextAction("travailler");
 		//traine = getEnvironment().getPheromone("te",1,7);
 		while(getPatch().getColor().getRed() != 1) 
 			randomLocation();
 	}
 
-	protected boolean getAlerte(){
-		/*
-		 * @return true if the agent is alerted , flase is not
-		 */
+	/**
+	 * @return true if the agent is alerted , false if not
+	 */
+	protected boolean getAlerte(){		
 		return alerte;
 	}
 
-	protected String travailler(){
-		/*
-		 * @return the action to make if there's an alerte when the agent works
-		 */
+	/**
+	 * @return the action to make if there's an alerte when the agent works
+	 */
+	protected String travailler(){		
 		List<Turtle> t = getOtherTurtles(20, true);
-		if (alerte){
+		if (alerte)
 			return "evacuer";
-		}
 		/*if ( ((agent) t.get(0)).getAlerte() == true ){
 			return "evacuer";
 		}	*/	
@@ -65,83 +75,83 @@ public class Agent extends AgentTurtle {
 		return "travailler";
 	}
 
-
-	protected String evacuer(){
-		/*
-		 * @return le comportement de l'agent lors de l'alerte selon son courage
-		 * 
-		 */
+	/**
+	 * @return the state of a  agent who is working , according to his bravery
+	 */
+	protected String evacuer(){		
 		if (courage > 90 )
 			return "etreMeneur";
 		else if (courage < 30)
 			return "etrePerdu";
-		else
-			return "etreSuiveur";
+		return "etreSuiveur";
 	}
 
-
+	/**
+	 * @return the state of a agent who's is left  : etrePanique  or etreSuiveur or  Perdu
+	 */
 	protected String perdu(){
-		/**
-		 * @return l'état possible d'un agent perdu : etrePanique ou  etreSuiveur ou  Perdu
-		 */
+		if ( isOut() )
+			return "sorti";
 		List<Turtle> liste = getOtherTurtles( visibilite, false);
-		if ( nbPas > probaPaniquer )
+		if ( pasTmp > probaPaniquer )
 			return "etrePanique";
 		else if( liste.size() > 2)
-			return "etreSuiveur";
-		else{    
-			wigglec();
-			nbPas++;
-			return "perdu";
-		}
+			return "etreSuiveur";  
+		wigglec();
+		pasTmp++;
+		return "perdu";
 	}
 
 
+	/**
+	 * @return the possible state for a leader 
+	 */
 	protected String meneur() {	
-		/**
-		 * @return  d'état possible pour un agent meneur : meneur
-		 */
+		if ( isOut() )
+			return "sorti";
 		List<Turtle> liste = getOtherTurtlesWithRole( visibilite, true, "suiveur");
 		//plus de gens le suive, moins il avance vite
 		double v = liste.size()*0.1;
 
-		if ( nbPas < 5 ){//nbr de pas avant de changer de direction
+		if (pasTmp < 5){//nbr de pas avant de changer de direction
 			fdc(1-v);
-			nbPas++;
+			pasTmp++;
 		}
 		else{
-			nbPas = 0;
+			pasTmp = 0;
 			randomHeading(60);
 		}
 		return "meneur";
 	}
 
+	/**
+	 * @return the possible state for a agent who is searching for d'un agent perdu 
+	 */
 	protected String suiveur(){
-		/**
-		 * @return létat possible pour un agenten recherche de meneur à suivre : 
-		 * 
-		 */
+		if ( isOut() )
+			return "sorti";
 		List<Turtle> liste = getOtherTurtlesWithRole( visibilite, false, "meneur");
-
-		if ( liste.isEmpty() == false ){
+		if (liste.isEmpty() == false){
 			wigglec();
 			return "partirSuivre";
 		}
-		else if(nbPas > 500){
-			nbPas = 0;
+		else if(pasTmp > 500){
+			pasTmp = 0;
 			return "etrePerdu";
 		}
 		else{
-			nbPas++;
+			pasTmp++;
 			wigglec();
 			return "suiveur";
 		}	
 	}
 
+	/**
+	 * @return l'etat possible pour un ��lement qui suit un meneur
+	 */
 	protected String suivre(){
-		/**
-		 * @return l'etat possible pour un élement qui suit un meneur
-		 */
+		if ( isOut() )
+			return "sorti";
 		Turtle t = getNearestTurtleWithRole( visibilite , "meneur");
 		if ( t == null ){
 			wigglec();
@@ -158,22 +168,24 @@ public class Agent extends AgentTurtle {
 		}
 	}
 
+	/**
+	 * @return le changement d'��tat possible pour un agent paniqu��
+	 */
 	protected String panique(){
-		/**
-		 * @return le changement d'état possible pour un agent paniqué
-		 */
+		if ( isOut() )
+			return "sorti";
 		double p = Math.random()*100;
-		if ( p < 10 )
+		if (p < 10)
 			wigglec();
-		if ( getOtherTurtlesWithRole(visibilite, false,"meneur").size() > 0)
+		if (getOtherTurtlesWithRole(visibilite, false,"meneur").size() > 0)
 			return "etreSuiveur";
 		return "panique";
 	}
 
-	protected String etrePerdu(){
-		/**
-		 * @return l'état possible pour un agent qui est perdu
-		 */
+	/**
+	 * @return l'��tat possible pour un agent qui est perdu
+	 */
+	protected String etrePerdu(){	
 		visibilite = 15;
 		setColor( couleurPerdu );
 		giveUpRole( role );
@@ -183,6 +195,10 @@ public class Agent extends AgentTurtle {
 		return "perdu";
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	protected String etreSuiveur(){
 		visibilite = 15;
 		setColor( couleurSuiveur );
@@ -192,12 +208,20 @@ public class Agent extends AgentTurtle {
 		return "suiveur";
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	protected String partirSuivre(){
 		visibilite = 15;
 		setColor( couleurSuivre );
 		return "suivre";
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	protected String etreMeneur(){
 		visibilite = 15;
 		setColor( couleurMeneur );
@@ -207,6 +231,10 @@ public class Agent extends AgentTurtle {
 		return "meneur";
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	protected String etrePanique(){
 		visibilite = 10;
 		setColor( couleurPanique );
@@ -214,6 +242,14 @@ public class Agent extends AgentTurtle {
 		role = "panique";
 		playRole( role );
 		return "panique";
+	}
+	
+	/**
+	 * a agent who succes to es the building
+	 */
+	protected void sorti(){
+		System.out.println("ouf, je suis vivant, et j'ai fait " + nbPas + " pas!");
+		killAgent(this);
 	}
 
 }

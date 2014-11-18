@@ -1,31 +1,53 @@
 package Utiles;
 
+import java.awt.Color;
+
 import turtlekit.kernel.Turtle;
 import turtlekit.pheromone.Pheromone;
 
 public abstract class AgentTurtle extends Turtle  {
 	/**
-	 * @param nbPas : number of steps throughout the simulation
-	 * @param visibilité : detection'radius of neighboring agents
-	 * @param probaPaniquer : agent'probability to be panic
-	 * @param courage : agent'bravery between 0 and 100
-	 * @param role : current agent'role
-	 * @param alerte : the agent is alerted or not
-	 * @param xdep : initial x coordinate
-	 * @param ydep : initial y coordinate
-	 * @param traine : traces left by the agent
+	 * number of steps throughout the simulation
 	 */
-
 	protected int nbPas;
-	protected int visibilite;		
+	/**
+	 * detection radius of neighboring agents
+	 */
+	protected int visibilite;	
+	/**
+	 * agent probability to be panic
+	 */
 	protected double probaPaniquer;	
-	protected int courage;			
+	/**
+	 * agent bravery between 0 and 100
+	 */
+	protected int courage;	
+	/**
+	 * current agent role
+	 */
 	protected String role;
-	protected boolean alerte;		
-	protected int xdep;				
-	protected int ydep;				
+	/**
+	 * the agent is alerted or not
+	 */
+	protected boolean alerte;	
+	/**
+	 * initial x coordinate
+	 */
+	protected int xdep;	
+	/**
+	 * initial y coordinate
+	 */
+	protected int ydep;		
+	/**
+	 * traces left by the agent
+	 */
 	protected Pheromone traine;
 
+	/**
+	 * @param x
+	 * @param y
+	 * @param d
+	 */
 	public void resterPasLoin( double x, double y, double d){
 		wigglec();
 		if( distance(x,y) > d ){
@@ -34,22 +56,23 @@ public abstract class AgentTurtle extends Turtle  {
 		}
 	}
 
-	public double distance ( double x, double y){
-		/*
-		 * @return the distance between the current agent and the (x,y) position
-		 */
-		return Math.sqrt( Math.pow(this.getX() - x, 2) + Math.pow(this.getY() - y, 2) );
+	/**
+	 * @param
+	 * @param
+	 * @return
+	 */	
+	public double distance (double x, double y){		
+		return Math.sqrt(Math.pow(this.getX() - x, 2) + Math.pow(this.getY() - y, 2) );
 	}
 
-	protected boolean isBehind( double angle, double xm, double ym){
-		/**
-		 * @return true if the agent is behing the turtle to follow  , false else
-		 * @param xm : other turtle x coordinate
-		 * @param ym : other turtle y coordinate
-		 * @param angle : current turtle'visibility radius
-		 */
-		
-		//on defini les coordonn��es du cercle derriere
+	/**
+	 * @param xm : other turtle x coordinate
+	 * @param ym : other turtle y coordinate
+	 * @param angle : current turtle'visibility radius
+	 * @return true if the agent is behing the turtle to follow  , false else
+	 */
+	protected boolean isBehind( double angle, double xm, double ym){	
+		//on defini les coordonn������es du cercle derriere
 		double xo = xm - Math.cos(Math.toRadians(angle))*visibilite;
 		double yo = ym - Math.sin(Math.toRadians(angle))*visibilite;
 		//la tortue sera derriere la meneuse si elle est dans le rayon du cercle de centre O(xo, yo)
@@ -66,30 +89,32 @@ public abstract class AgentTurtle extends Turtle  {
 		setXY(x1,y1);
 	}*/
 
-	protected boolean AgentCollision() {
-		/**
-		 * @return : true if the next patch is a turtle 
-		 */
+	/**
+	 * @return : true if the next patch is a turtle 
+	 */
+	protected boolean AgentCollision() {	
 		return ! getNextPatch().isEmpty();
 	}
 
-	protected boolean WallCollision(){
-		/**
-		 * @return true if the next patch is a wall (white)
-		 */
+	/**
+	 * @return true if the next patch is a wall (white)
+	 */
+	protected boolean WallCollision(){	
 		return getNextPatch().getColor().getRed() == 255;
 	}
 
-	protected void fdc ( double n ){
-		/**
-		 * @param n : number of steps to make 
-		 * the agents move if there isn't collision on the next patch
-		 */
+	/**
+	 * @param n : number of steps to make 
+	 * the agents move if there isn't collision on the next patch
+	 */
+	protected void fdc ( double n ){		
 		if(getNextPatch() != null) {
 			if(AgentCollision())
 				fd(0);
-			else if (! WallCollision())
+			else if (! WallCollision()){
 				fd(n);
+				nbPas++;
+			}			
 			else{
 				setHeading(getHeading()+100);
 				randomHeading(40);
@@ -97,18 +122,30 @@ public abstract class AgentTurtle extends Turtle  {
 		}	
 	}
 
+	/**
+	 * 
+	 */
 	protected void wigglec (){
-		/**
-		 * 
-		 */
 		this.randomHeading(120);
 		if(getNextPatch() != null) {
 			if(AgentCollision()) 
 				fd(0);
-			else if (! WallCollision())
+			else if (! WallCollision()){
 				fd(1);
+				nbPas++;
+			}			
 			else
 				fd(0);
 		}
 	}
+	
+	/**
+	 * @return true if the agent is out of the building , false else
+	 */
+	protected boolean isOut(){
+		return getPatchColor() == Color.green;
+	}
+
+
+
 }
