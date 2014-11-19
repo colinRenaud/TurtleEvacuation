@@ -8,16 +8,27 @@ import turtlekit.viewer.PheromoneViewer;
 
 public class Feu extends Turtle{
 
+	/**
+	 * 
+	 */
 	protected Pheromone s;
 
+	/**
+	 * 
+	 */
 	protected void activate(){
 		super.activate();
 		setNextAction("act");
 		setColor(Color.red);
 		s = getEnvironment().getPheromone("bobi", 20,50);
+		while(getPatch().getColor().getRed() != 1) 
+			randomLocation();
 	}
 
 	@SuppressWarnings("deprecation")
+	/**
+	 * @return
+	 */
 	protected String act(){
 		s.incValue(xcor(), ycor() , 10000);
 		int i = (int) (Math.random()*10 - 5 + this.s.getEvaporationCoefficient());
@@ -28,8 +39,6 @@ public class Feu extends Turtle{
 		s.setEvaporationPercentage(i);
 		return "act";
 	}
-
-
 
 	public static void main(String[] args) {
 		executeThisTurtle(10

@@ -2,6 +2,8 @@ package Utiles;
 
 import java.awt.Color;
 
+import PlanEvac.Feu;
+
 import turtlekit.kernel.Turtle;
 import turtlekit.pheromone.Pheromone;
 
@@ -138,6 +140,13 @@ public abstract class AgentTurtle extends Turtle  {
 				fd(0);
 		}
 	}
+	/**
+	 * 
+	 * @return
+	 */
+	/*protected boolean fireCollision() {
+		
+	}*/
 	
 	/**
 	 * @return true if the agent is out of the building , false else

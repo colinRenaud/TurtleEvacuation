@@ -153,8 +153,8 @@ public class PlanEvacuation extends TKEnvironment{
 	public static void main(String[] args) {
 		executeThisEnvironment(
 				Option.turtles.toString(),Agent.class.getName()+",30"
-				/*,Option.turtles.toString(),Feu.class.getName()+",1"
-				,Option.viewers.toString(),PheromoneViewer.class.getName()*/
+				+ ";"+Feu.class.getName()+",2"
+				,Option.viewers.toString(),MyViewer.class.getName()
 				,Option.startSimu.toString()
 				//,Option.noWrap.toString()
 				);
