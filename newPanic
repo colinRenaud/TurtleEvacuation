@@ -1,0 +1,175 @@
+package PlanEvac;
+
+
+import java.awt.Color;
+import java.util.List;
+
+import turtlekit.kernel.Turtle;
+import Utiles.AgentTurtle;
+
+public class Panic extends AgentTurtle{
+	
+	
+	//faire une arraylist de gathering pour les poto panics!!!!!!!!!!!!!!!
+	
+	protected void activate(){//****************modifier les param de visibilité
+		super.activate();
+		this.role = "panic";
+		playRole( "panic" );
+		nbStep = 0;
+		cptAction = 0;
+		beAlert = false;
+		xdep = xcor();
+		ydep = ycor();
+		isWaiting = false;
+		setNextAction( "work" );
+		while(getPatch().getColor().getRed() != 1) 
+			randomLocation();
+	}
+	
+	/**
+	 * @return true if the agent has lost his target
+	 */
+	protected boolean targetLost(){
+		if ( target == null )
+			return true;
+		return distance( target ) > visibility;
+	}
+	
+	/**
+	 * the agent become panic
+	 * @return the next action
+	 */
+	protected String returnPanic(){
+		((Leader)(target)).group.remove( target );
+		target = null;//***********************************pas encore utiliséù************************
+		giveUpRole("panicFollower");
+		playRole( "panic" );
+		return "shout";
+	}
+	
+	/**
+	 * the agent as been alerted of fire, he takes his role and shout
+	 */
+	protected String evacuate() {
+		giveUpRole( "work" );
+		playRole( role );
+		setColor( Color.yellow );
+		return "shout";
+	}
+	
+	/**
+	 *  the agent shout because he is panicked, alerting the others agents
+	 *  if he alert an other panic, they gather
+	 *  else he moves
+	 * @return the next action
+	 */
+	protected String shout(){//il cri comme un con et alerte les autre
+		List<AgentTurtle > list = getOtherTurtlesWithRole( listenDistance, true, "work", AgentTurtle.class );
+		for (int i = 0; i < list.size(); i++ ){
+			list.get(i).setInAlert();
+		}
+		List<AgentTurtle> l = getOtherTurtlesWithRole( visibility, true, "panic", AgentTurtle.class );
+		if ( l.size() > 0 ){
+			target = l.get( 0 );
+			return "gather";
+		}
+		return "move";
+	}
+	
+	/**
+	 * he moves
+	 */
+	protected String move(){//donner un mouvement qui fuit le feu***************************************
+		if ( isOut() )
+			return "goOut";
+		if ( cptAction < 5 ){
+			cptAction++;
+			return "move";
+		}
+		else{
+			wigglec();
+			cptAction = 0;
+			return "shout";
+		}
+	}
+	
+	protected String tetanize(){
+		return "tetanize";
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected String gather(){
+		if ( distance( target ) > 2 ){
+			setHeadingTowards( target );
+			fdc(1);
+			return "gather";
+		}
+		else
+			return "stayNear";
+	}
+	
+	protected String stayNear(){//donner une chance d'avoir un groupe plus grand************************
+		if ( distance( target ) > 3 ){
+			setHeadingTowards( target );
+			fdc(1);
+		}
+		else if ( cptAction == 5 ){
+			wigglec();
+			cptAction = 0;
+		}
+		else
+			cptAction++;
+		return "shout";
+	}
+	
+	protected String follow(){
+		if ( isOut() )
+			return "goOut";
+		if ( targetLost() )
+			return "returnPanic";
+		if ( distance( target ) > followDistance ){
+			setHeadingTowards( target );
+			fdc(1);
+		}
+		return "follow";
+	}
+	
+	protected String comeHere(){//rejoint le meneur qui vient de l'appeller
+		if ( isOut() )
+			return "goOut";
+		if ( pointX != xcor() || pointY != ycor() ){//il est trop loin, il avance
+			double d = distance( pointX, pointY );
+			setXY( getX() + varX()/d, getY() + varY()/d );//attention ils passent at travers les murs*****************************
+			nbStep++;
+			return "comeHere";
+		}
+		else
+			return "shout";
+	}
+
+
+	@Override
+	protected void goOut() {
+		information();
+		killAgent( this );
+	}
+
+
+	@Override
+	protected void information() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected String waitHere() {
+		return "waitHere";
+	}
+
+
+}
