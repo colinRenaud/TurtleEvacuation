@@ -1,0 +1,255 @@
+package PlanEvac;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
+import turtlekit.kernel.Turtle;
+import Utiles.AgentTurtle;
+
+public class Leader extends AgentTurtle{
+	
+	/**
+	 * maximum size of a group
+	 */
+	protected int groupSizeMax;//jouer avec la taille du groupe
+	
+	/**
+	 * group of turtle witch are following the leader
+	 */
+	protected ArrayList<AgentTurtle> group;//peut un futur probleme quand un du groupe sortira avant le meneur
+	
+	protected double speed;//vitesse de deplacement****INUTILE?????
+	
+	
+	protected int lostFollowers;//je sais pas pourquoi j'ai mis ça, mais il dois y avior une raison...
+	
+	protected int panicFollowers;
+	
+	
+	protected void activate(){//****************modifier les param de visibilité
+		super.activate();
+		role = "leader";
+		playRole( "work" );
+		nbStep = 0;
+		cptAction = 0;
+		beAlert = false;
+		xdep = xcor();
+		ydep = ycor();
+		isWaiting = false;
+		group = new ArrayList<AgentTurtle>();
+		setNextAction( "work" );
+		while(getPatch().getColor().getRed() != 1) 
+			randomLocation();
+	}
+	//********************************************** nbStep doit augmenter meme pour les setXY!!!!********************************
+	/**
+	 * the agent as been alerted of fire, he takes his role and think
+	 */
+	protected String evacuate() {
+		giveUpRole( "work" );
+		playRole( role );
+		setColor( Color.blue );
+		return "think";
+	}
+	
+	/**
+	 * if there is panics or lost around him, he help them
+	 * else he move
+	 * @return his next action
+	 */
+	protected String think(){//si son groupe est au complet il avance dessuite? ou sinon a appelle un autre meneur?
+		toAlert();
+		
+			List<AgentTurtle> p = getOtherTurtlesWithRole( visibility, true , "panic", AgentTurtle.class );
+			if ( p.size() > 0 ){//if there is a panic, he goes for him
+				if ( p.get( 0 ).target == null ){
+					target = p.get(0);
+					return "helpPanic";
+				}
+			}
+			List<AgentTurtle> l = getOtherTurtlesWithRole( visibility, true , "lost", AgentTurtle.class );
+			if ( l.size() > 0 ){//if there is a lost he wait for him
+				if ( l.get( 0 ).target == null ){
+					target = l.get(0);
+					return "helpLost";
+				}	
+			}
+		
+		orderTo( "follow" );
+		speed = 1;// - group.size();*************INUTILE????????????????*****************
+		return "move";
+	}
+	
+	/**
+	 * he register his current position
+	 * he order his group to wait here for him
+	 * he order the panic to wait him
+	 * @return the next action: help
+	 */
+	protected String helpPanic(){
+		this.pointX = xcor();
+		this.pointY = ycor();
+		target.setNextAction( "waitHere");
+		orderTo( "waitHere" );
+		return "help";
+	}
+	
+	/**
+	 * order the lost to follow him
+	 * @return the next action: wait here
+	 */
+	protected String helpLost(){
+		target.setTarget( this );
+		target.setNextAction( "follow" );
+		group.add( target );
+		target.giveUpRole( target.role );
+		target.playRole( "lostFollower" );
+		return "waitHere";
+	}
+	
+	/**
+	 * alert the workers
+	 */
+	protected void toAlert(){
+		List < AgentTurtle > liste = getOtherTurtlesWithRole( visibility, true, "work", AgentTurtle.class );
+		if ( liste.size() > 0 ){
+			for ( int i = 0; i < liste.size(); i++ ){
+				if ( liste.get(i).beAlert == false  ){
+					liste.get(i).setNextAction( "evacuate" );
+				}
+			}
+		}
+	}
+	
+	/**
+	 * until he's too far from the panic, he move
+	 * if he is close enough he order the panic to follow him
+	 * @return the next action: movoToPoint
+	 */
+	protected String help(){
+		if ( isOut() )
+			return "goOut";
+		setColor( Color.cyan );// a virer********************************************************
+		target.setColor( Color.pink );// sa aussi**********************************************
+		if ( distance( target ) > 2 ){
+			setHeadingTowards( target );
+			fdc(1);
+			return "help";
+		}
+		else{
+			group.add( target );
+			target.setTarget( this );
+			target.giveUpRole( target.role );//**********************bien vérifier que les giveUpRole cible bien le role de l'agent du group et non celui du leader!!!!
+			target.playRole( "panicFollower" );
+			target.setNextAction("follow");//il ordonne a l'agent de le suivre et revient au point de rassemblement
+			target = null;
+			return "moveToPoint";
+		}
+	}
+	
+	/**
+	 * while his target is too far he don't move
+	 * else he thinks
+	 */
+	protected String waitHere(){//wait for an agent
+		if ( distance( target ) > visibility )//a MODIFIER: il arrete quand la cible est dans son rayon
+			return "wait";
+		else{
+			target = null;
+			return "think"; 
+		}
+	}
+	
+	/**
+	 * the agent move to a point
+	 * @return the next action
+	 */
+	protected String moveToPoint(){//l'agent revient a son point de rassemblement
+		if ( isOut() )
+			return "goOut";
+		double d = distance( pointX, pointY );
+		if ( d > ( followDistance / 2 )  ){
+			setXY( getX() + varX()/d, getY() + varY()/d );
+			nbStep++;
+			return "moveToPoint";
+		}
+		else{
+			return "think";
+		}
+	}
+	
+	/**
+	 * the agent move
+	 */
+	protected String move(){//faire que les suiveur soient en file indienne******************************MODIF*********
+		if ( isOut() )
+			return "goOut";
+		if ( cptAction < 5 ){
+			fdc( speed );
+			cptAction++;
+			return "move";
+		}
+		else{
+			cptAction = 0;
+			randomHeading(60);
+			return "think";
+		}
+	}
+	
+	/**
+	 * the leader order something to his group
+	 * @param o the order
+	 */
+	protected void orderTo( String o ){//donne un ordre a tous les agents qui le suivent
+		for ( int i = 0; i < group.size(); i++ ){
+			group.get( i ).setNextAction( o );//revoir si le boolean isWaiting est vraiment utile
+		}
+	}
+	
+	/**
+	 * before to leave the map, the leader tell his group where is the exit
+	 * and order them to come here
+	 * then he "shout" to warn the others to come here
+	 * finally we kill this agent because he is out
+	 */
+	protected void goOut() {
+		if ( group.size() > 0 ){
+			for ( int i = 0; i < group.size(); i++ ){
+				group.get( i ).setPointXY( xcor(), ycor() );
+				group.get( i ).setNextAction( "comeHere" );//revoir si le boolean isWaiting est vraiment utile
+			}
+		}
+		List<AgentTurtle> liste = getOtherTurtles( listenDistance, false, AgentTurtle.class );//LA METHODE!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		for ( int i = 0; i < liste.size(); i++ ){
+			 liste.get(i).setPointXY( xcor(), ycor() );
+			 liste.get(i).setNextAction( "comeHere" ); 
+		}
+		information();
+		killAgent( this );
+	}
+	
+	/**
+	 * the agent move to the point where a leader told him to go
+	 */
+	protected String comeHere(){//rejoint le meneur qui vient de l'appeller
+		if ( isOut() )
+			return "goOut";
+		if ( pointX != xcor() || pointY != ycor() ){//il est trop loin, il avance
+			double d = distance( pointX, pointY );
+			setXY( getX() + varX()/d, getY() + varY()/d );//attention ils passent at travers les murs*****************************
+			nbStep++;
+			return "comeHere";
+		}
+		else
+			return "think";
+	}
+	
+	protected String explore(){
+		return "";
+	}
+	
+	protected void information(){//cette méthode donnera les details enregistrés par l'agent
+		
+	}
+}
