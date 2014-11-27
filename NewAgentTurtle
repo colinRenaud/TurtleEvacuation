@@ -1,0 +1,258 @@
+package Utiles;
+
+import java.awt.Color;
+import java.util.List;
+
+import turtlekit.kernel.Patch;
+import turtlekit.kernel.Turtle;
+
+
+public abstract class AgentTurtle extends Turtle  {
+
+	/**
+	 * count the number of displacement
+	 */
+	protected int nbStep;
+	
+	/**
+	 * determined the actual role of the agent
+	 */
+	public String role;
+	
+	/**
+	 * is true if the agent as been alerted of the fire
+	 */
+	public boolean beAlert;	
+	
+	/**
+	 * position x in flights
+	 */
+	protected int xdep;	
+
+	/**
+	 * position y in flights
+	 */
+	protected int ydep;		
+	
+	/**
+	 * target of an agent
+	 */
+	public AgentTurtle target;
+	
+	/**
+	 * position x of the gathering point
+	 */
+	public int pointX;
+	
+	/**
+	 * position y of the gathering point
+	 */
+	public int pointY;
+	
+	/**
+	 * counter of action to determined when they hace to change
+	 */
+	protected int cptAction;
+	
+	protected boolean isWaiting;//is true when the agent is waiting for another agent
+	
+	protected String lastAction;//derniere action de l'agent
+	
+	/**
+	 * radius of visibility of agent
+	 */
+	protected int visibility = 15;	
+	
+	/**
+	 * radius to follow an agent
+	 */
+	protected final int followDistance = 5;//rayon dans lequel les agent le suive
+	
+	/**
+	 * radius to heard an agent
+	 */
+	protected final int listenDistance = 20;//rayon de porté des cris, distance pour se faire entendre
+
+	
+
+	protected abstract String move();
+	
+	protected abstract String evacuate();
+	
+	protected abstract void goOut();
+	
+	protected abstract void information();
+	
+	protected abstract String waitHere();
+	
+	protected abstract String comeHere();
+
+	public void setTarget( AgentTurtle t ){
+		this.target = t;
+	}
+	
+	public void setPointXY ( int x , int y ){
+		this.pointX = x;
+		this.pointY = y;
+	}
+	
+	public void setInAlert(){//*****INUTILE????*****************
+		this.beAlert = true;
+	}
+	
+	public void setLastAction( String a ){//inutile???********************************
+		this.lastAction = a;
+	}
+	
+	public void setWaiting(){//utile??***************************
+		this.isWaiting = true;
+	}
+	
+	public void stopWaiting(){
+		this.isWaiting = false;
+	}
+	
+	/**
+	 * 
+	 * @return x variation
+	 */
+	public double varX(){
+		return pointX - xcor();
+	}
+	
+	/**
+	 * 
+	 * @return y variation
+	 */
+	public int varY(){
+		return pointY - ycor();
+	}
+	
+	/**
+	 * motion they do when they are working
+	 * @return
+	 */
+	public String work(){
+		if ( beAlert )
+			return "evacuate";
+		List<Turtle> t = getOtherTurtlesWithRole(30, true, "feu" );// donner le role de feu au Feu
+		if ( t.size() > 0 )
+			return "evacuate";
+		resterPasLoin( xdep, ydep, 5);
+		return "work";
+	}
+	
+	public void resterPasLoin( double x, double y, double d){//*******INUTILE??***************
+		wigglec();
+		if( distance(x,y) > d ){
+			setHeading( getHeading() + 180);
+			fdc(1);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @return
+	 */
+	public boolean wallBetween( int x1, int y1 ){//*****************n'a pas l'air de marcher: en chantier
+		boolean val = false;
+		double d = distance( x1, y1 );
+		int i = 1;
+		int x = xcor();
+		int y = ycor();
+		int varX = x1 - x;
+		int varY = y1 - y;
+		while ( val == false && i < d ){
+			Patch p = getPatchAt( (int)( x + ( i * varX )/ d),(int)( y + ( i * varY )/ d));
+			if ( p.getColor().getRed() == 255 ){
+				val = true;
+			}
+		}
+		return val;
+	}
+	
+	public boolean wallBetweenUs(){//*****************n'a pas l'air de marcher: en chantier
+		boolean val = false;
+		double d = distance( target );
+		int i = 1;
+		int x = xcor();
+		int y = ycor();
+		while ( val == false && i < d ){
+			Patch p = getPatchAt( (int)( x + ( i * varX() )/ d),(int)( y + ( i * varY() )/ d));
+			if ( p.getColor().getRed() == 255 ){
+				val = true;
+			}
+		}
+		return val;
+	}
+
+	protected boolean isBehind( double angle, double xm, double ym){//******************INUTILE????????????????*************
+		
+		double xo = xm - Math.cos(Math.toRadians(angle))*visibility;
+		double yo = ym - Math.sin(Math.toRadians(angle))*visibility;
+		return distanceNoWrap(xo,yo) < visibility;
+	}
+	
+	/**
+	 * 
+	 * @return true is the next patch is a turtle
+	 */
+	protected boolean AgentCollision() {	
+		return ! getNextPatch().isEmpty();
+	}
+	
+	/**
+	 * 
+	 * @return true if the next patch is a wall
+	 */
+	protected boolean WallCollision(){	
+		return getNextPatch().getColor().getRed() == 255;
+	}
+	
+	/*protected boolean FireCollision(){
+		return ((Turtle) getNextPatch()).getPheromone( "Feu" ) == null;
+	}*/
+	
+	/**
+	 * 
+	 * @param n
+	 */
+	protected void fdc ( double n ){//*************on va peut etre généraliser et mettre fdc(1) pour tous***********
+		if(getNextPatch() != null) {
+			if(AgentCollision()){
+				setHeading(getHeading()+100);
+				randomHeading(40);
+				fdc(1);
+			}
+			else if (! WallCollision()){
+				fd(n);
+				nbStep++;
+			}			
+			else{
+				setHeading(getHeading()+100);
+				randomHeading(40);
+			}
+		}	
+	}
+
+	protected void wigglec (){
+		this.randomHeading(120);
+		if(getNextPatch() != null) {
+			if(AgentCollision()) 
+				fd(0);
+			else if (! WallCollision()){
+				fd(1);
+				nbStep++;
+			}			
+			else
+				fd(0);
+		}
+	}
+	
+	protected boolean isOut(){
+		return getPatchColor() == Color.green;
+	}
+
+}
