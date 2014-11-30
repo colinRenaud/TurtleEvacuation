@@ -7,10 +7,10 @@ package PlanEvac;
 
 import java.awt.Color;
 import java.util.List;
-import Utiles.AgentTurtle;
+import Utiles.NewAgentTurtle;
 import turtlekit.kernel.Turtle;
 
-public class Agent extends AgentTurtle {
+public class Agent extends NewAgentTurtle {
 	
 	/**
 	 * color of a left agent
@@ -32,8 +32,10 @@ public class Agent extends AgentTurtle {
 	 * color of a gent who follow a leader
 	 */
 	private final Color couleurSuivre = Color.orange;
+	
 	private int pasTmp;
 	
+	private final String fireName = "bobi";
 
 	/**
 	 * activate an agent 
@@ -92,6 +94,8 @@ public class Agent extends AgentTurtle {
 	protected String perdu(){
 		if ( isOut() )
 			return "sorti";
+		if(pheromoneCollision(fireName)) 
+			return "burn";
 		List<Turtle> liste = getOtherTurtles( visibilite, false);
 		if ( pasTmp > probaPaniquer )
 			return "etrePanique";
@@ -109,6 +113,8 @@ public class Agent extends AgentTurtle {
 	protected String meneur() {	
 		if ( isOut() )
 			return "sorti";
+		if(pheromoneCollision(fireName)) 
+			return "burn";
 		List<Turtle> liste = getOtherTurtlesWithRole( visibilite, true, "suiveur");
 		//plus de gens le suive, moins il avance vite
 		double v = liste.size()*0.1;
@@ -130,6 +136,8 @@ public class Agent extends AgentTurtle {
 	protected String suiveur(){
 		if ( isOut() )
 			return "sorti";
+		if(pheromoneCollision(fireName)) 
+			return "burn";
 		List<Turtle> liste = getOtherTurtlesWithRole( visibilite, false, "meneur");
 		if (liste.isEmpty() == false){
 			wigglec();
@@ -143,7 +151,7 @@ public class Agent extends AgentTurtle {
 			pasTmp++;
 			wigglec();
 			return "suiveur";
-		}	
+		}		
 	}
 
 	/**
@@ -152,6 +160,8 @@ public class Agent extends AgentTurtle {
 	protected String suivre(){
 		if ( isOut() )
 			return "sorti";
+		if(pheromoneCollision(fireName)) 
+			return "burn";
 		Turtle t = getNearestTurtleWithRole( visibilite , "meneur");
 		if ( t == null ){
 			wigglec();
@@ -174,6 +184,8 @@ public class Agent extends AgentTurtle {
 	protected String panique(){
 		if ( isOut() )
 			return "sorti";
+		if(pheromoneCollision(fireName)) 
+			return "burn";
 		double p = Math.random()*100;
 		if (p < 10)
 			wigglec();
@@ -219,7 +231,6 @@ public class Agent extends AgentTurtle {
 	}
 
 	/**
-	 * 
 	 * @return
 	 */
 	protected String etreMeneur(){
@@ -232,7 +243,6 @@ public class Agent extends AgentTurtle {
 	}
 
 	/**
-	 * 
 	 * @return
 	 */
 	protected String etrePanique(){
@@ -245,11 +255,21 @@ public class Agent extends AgentTurtle {
 	}
 	
 	/**
-	 * a agent who succes to es the building
+	 * a agent who succes to escape the building
 	 */
 	protected void sorti(){
-		System.out.println("ouf, je suis vivant, et j'ai fait " + nbPas + " pas!");
+		System.out.println("OUF , JE SUIS VIVANT");
 		killAgent(this);
+	}
+	
+	/**
+	 * kill the agent if he is on fire
+	 */
+	protected void burn() {
+		if(pheromoneCollision(fireName) && ! isOut()) {
+			System.out.println("MERDE JE BRULE  !!!!!!!!!!!!");
+			killAgent(this);
+		}
 	}
 
 }

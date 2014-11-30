@@ -1,13 +1,11 @@
 package Utiles;
 
 import java.awt.Color;
-
 import PlanEvac.Feu;
-
 import turtlekit.kernel.Turtle;
 import turtlekit.pheromone.Pheromone;
 
-public abstract class AgentTurtle extends Turtle  {
+public abstract class NewAgentTurtle extends Turtle  {
 	/**
 	 * number of steps throughout the simulation
 	 */
@@ -86,25 +84,33 @@ public abstract class AgentTurtle extends Turtle  {
 		int x = t.xcor();
 		int y = t.ycor();
 		double d = this.distance(x,y);
-		double x1 = (this.getX() - x)/(d/2);
+		double x1 = (this.getX() - x)/(d/2);facebook
 		double y1 = (this.getY() - y)/(d/2);
 		setXY(x1,y1);
 	}*/
 
 	/**
-	 * @return : true if the next patch is a turtle 
+	 * @return true if the next patch is a turtle , false else
 	 */
 	protected boolean AgentCollision() {	
 		return ! getNextPatch().isEmpty();
 	}
 
 	/**
-	 * @return true if the next patch is a wall (white)
+	 * @return true if the next patch is a wall (white) , false else 
 	 */
 	protected boolean WallCollision(){	
 		return getNextPatch().getColor().getRed() == 255;
 	}
-
+	
+	/**
+	 * @return true if the turtle has the same index as the Pheromone (same index => same place on the grid)
+	 * NE MARCHE PAS  ???
+	 */	
+	protected boolean pheromoneCollision(String pheroName) {
+		return getEnvironment().getPheromone(pheroName).get(xcor(),ycor()) >  2;
+	}
+	
 	/**
 	 * @param n : number of steps to make 
 	 * the agents move if there isn't collision on the next patch
@@ -140,14 +146,8 @@ public abstract class AgentTurtle extends Turtle  {
 				fd(0);
 		}
 	}
-	/**
-	 * 
-	 * @return
-	 */
-	/*protected boolean fireCollision() {
-		
-	}*/
 	
+
 	/**
 	 * @return true if the agent is out of the building , false else
 	 */

@@ -11,18 +11,16 @@ import java.io.IOException;
 import turtlekit.kernel.TKEnvironment;
 import turtlekit.kernel.TurtleKit;
 import turtlekit.kernel.TurtleKit.Option;
+import Utiles.Fenetre;
 import Utiles.MethodeUtileEnv;
+import Utiles.MyViewer;
 
 public class PlanEvacuation extends TKEnvironment{
 
 	/**
 	 * buffer which store the picture coordinates
 	 */
-	private BufferedImage buffer;
-	/**
-	 * plan's picture name
-	 */
-	private final String nomfichier = "plan.png";
+	private static BufferedImage buffer;
 	/**
 	 * couleur permettant de d��limiter les images plus blanches ou plus noires
 	 */
@@ -38,7 +36,7 @@ public class PlanEvacuation extends TKEnvironment{
 	/**
 	 * size of the outside
 	 */
-	private final int arroundSize = 50;
+	private final static int arroundSize = 50;
 	
 	/**
 	 * read the buffer and build the TK grid
@@ -46,9 +44,9 @@ public class PlanEvacuation extends TKEnvironment{
 	public void activate() {
 		
 		try {
-			buffer = MethodeUtileEnv.importerImage(nomfichier); // picture's import
+			buffer = MethodeUtileEnv.importerImage(getMadkitProperty("plan")); // picture's import
 		} catch (IOException e) {e.printStackTrace();buffer = null;}
-		
+		System.out.println(getMadkitProperty("plan"));
 		MethodeUtileEnv.adapterImage(buffer,couleurSalle,couleurMur,couleurLimite);	
 		setMadkitProperty(TurtleKit.Option.envWidth, ""+(buffer.getWidth()+arroundSize));
 		setMadkitProperty(TurtleKit.Option.envHeight, ""+(buffer.getHeight()+arroundSize));
@@ -75,15 +73,14 @@ public class PlanEvacuation extends TKEnvironment{
 		for (int i = 0; i < buffer.getWidth()+arroundSize; i++) {
 			for (int j = buffer.getHeight(); j < buffer.getHeight()+arroundSize; j++) 
 				getPatch(i,j).setColor(Color.green);
-		}
-		
+		}		
 		
 	}
 	/**
-	 * 
-	 * @param i
+	 * @return true if there is a wall on the top of the agent , false else
+	 * @param i 
 	 * @param j
-	 * @param h
+	 * @param h 
 	 * 
 	 */
 	public boolean wallTop(int i, int j , int h) {
@@ -95,7 +92,6 @@ public class PlanEvacuation extends TKEnvironment{
 	}
 	
 	/**
-	 * 
 	 * @param i
 	 * @param j
 	 * @param w
@@ -110,7 +106,6 @@ public class PlanEvacuation extends TKEnvironment{
 	}
 	
 	/**
-	 * 
 	 * @param i
 	 * @param j
 	 * @return
@@ -146,16 +141,29 @@ public class PlanEvacuation extends TKEnvironment{
 		return (wallTop(i,j,buffer.getWidth()) && wallBot(i,j) ) || wallLeft(i,j) && wallRight(i,j,buffer.getHeight() );
 	}
 	
+	public static int getEnvWidth(){
+		return buffer.getWidth()+arroundSize;
+	}
+	
+	public static int getEnvheight(){
+		return buffer.getHeight()+arroundSize;
+	}
+	
 	/**
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		Fenetre F = new Fenetre();
+		while(!F.souris){
+			System.out.println();
+		}	
 		executeThisEnvironment(
-				Option.turtles.toString(),Agent.class.getName()+",30"
-				+ ";"+Feu.class.getName()+",2"
+				Option.turtles.toString(),Agent.class.getName()+F.GetNbAgent()
+				+ ";"+Feu.class.getName()+F.GetNbFeu()
 				,Option.viewers.toString(),MyViewer.class.getName()
 				,Option.startSimu.toString()
+				,"--plan",F.Getplan()
 				//,Option.noWrap.toString()
 				);
 	}
