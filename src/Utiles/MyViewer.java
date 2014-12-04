@@ -4,6 +4,9 @@ package Utiles;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
 
 import PlanEvac.PlanEvacuation;
 /*import java.awt.Image;
@@ -32,7 +35,8 @@ public class MyViewer extends PheromoneViewer{
 	 * make the viewer see the wall , and the out
 	 * 
 	 */
-
+	/*private Image car = new ImageIcon(getClass().getResource("Images/mario.png"))
+	.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);*/
 	public void paintPatch(final Graphics g, final Patch p, final int x, final int y, final int index) {
 		super.paintPatch(g, p, x, y, index);
 		if(p.getColor().getRed()== 255) {
@@ -50,7 +54,7 @@ public class MyViewer extends PheromoneViewer{
 	public void paintTurtle(final Graphics g, final Turtle t, final int i, final int j) {
 		g.setColor(t.getColor());
 		g.fillRect(i , j ,PlanEvacuation.getEnvWidth()/60,PlanEvacuation.getEnvheight()/60 );
-		 // g.drawImage(img,i,j, 4, 4, (ImageObserver) this);
+		//g.drawImage(car,i,j, 4, 4, null);
 		
 	}
 	

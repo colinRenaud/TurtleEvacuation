@@ -148,23 +148,5 @@ public class PlanEvacuation extends TKEnvironment{
 	public static int getEnvheight(){
 		return buffer.getHeight()+arroundSize;
 	}
-	
-	/**
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		Fenetre F = new Fenetre();
-		while(!F.souris){
-			System.out.println();
-		}	
-		executeThisEnvironment(
-				Option.turtles.toString(),Agent.class.getName()+F.GetNbAgent()
-				+ ";"+Feu.class.getName()+F.GetNbFeu()
-				,Option.viewers.toString(),MyViewer.class.getName()
-				,Option.startSimu.toString()
-				,"--plan",F.Getplan()
-				//,Option.noWrap.toString()
-				);
-	}
+
 }

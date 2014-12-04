@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -15,9 +14,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import turtlekit.kernel.TurtleKit;
 import turtlekit.kernel.TurtleKit.Option;
+import PlanEvac.Agent;
+import PlanEvac.Feu;
+import PlanEvac.PlanEvacuation;
 
-public class Fenetre extends JFrame implements MouseListener {
+public class Fenetre extends JFrame implements MouseListener, ActionListener {
 	private JPanel container = new JPanel();
 	private JComboBox combo = new JComboBox();
 	private JLabel label = new JLabel("Choix de la carte");
@@ -42,7 +45,7 @@ public class Fenetre extends JFrame implements MouseListener {
 		
 		// creation du bouton
 		south = new JPanel();
-		bouton.addMouseListener(this);
+		bouton.addActionListener(this);
 		south.add(bouton);
 		
 		// ajout du bouton
@@ -110,8 +113,27 @@ public class Fenetre extends JFrame implements MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		souris = true;
-		System.out.println("Vous venez de cliquer sur la fen�tre graphique");    
-
+		System.out.println("Vous venez de cliquer sur la fenètre graphique"); 
+		new TurtleKit(
+				Option.turtles.toString(),Agent.class.getName()+GetNbAgent()
+				+ ";"+Feu.class.getName()+GetNbFeu()
+				,Option.viewers.toString(),MyViewer.class.getName()
+                //,Option.startSimu.toString()
+				,"--plan",Getplan()
+				,Option.environment.toString(),PlanEvacuation.class.getName()
+				);
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {;
+		new TurtleKit(
+				Option.turtles.toString(),Agent.class.getName()+GetNbAgent()
+				+ ";"+Feu.class.getName()+GetNbFeu()
+				,Option.viewers.toString(),MyViewer.class.getName()
+//				,Option.startSimu.toString()
+				,"--plan",Getplan()
+				,Option.environment.toString(),PlanEvacuation.class.getName()
+				);
 	}
 
 	@Override
@@ -126,5 +148,7 @@ public class Fenetre extends JFrame implements MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent arg0) {}
 
-
+	public static void main(String[] args) {
+		new Fenetre();
+	}
 }
