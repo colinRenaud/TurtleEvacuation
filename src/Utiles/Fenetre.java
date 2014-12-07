@@ -112,16 +112,6 @@ public class Fenetre extends JFrame implements MouseListener, ActionListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		souris = true;
-		System.out.println("Vous venez de cliquer sur la fenètre graphique"); 
-		new TurtleKit(
-				Option.turtles.toString(),Agent.class.getName()+GetNbAgent()
-				+ ";"+Feu.class.getName()+GetNbFeu()
-				,Option.viewers.toString(),MyViewer.class.getName()
-                //,Option.startSimu.toString()
-				,"--plan",Getplan()
-				,Option.environment.toString(),PlanEvacuation.class.getName()
-				);
 	}
 	
 	@Override
@@ -132,6 +122,7 @@ public class Fenetre extends JFrame implements MouseListener, ActionListener {
 				,Option.viewers.toString(),MyViewer.class.getName()
 //				,Option.startSimu.toString()
 				,"--plan",Getplan()
+				,"--pheroName","feu"
 				,Option.environment.toString(),PlanEvacuation.class.getName()
 				);
 	}

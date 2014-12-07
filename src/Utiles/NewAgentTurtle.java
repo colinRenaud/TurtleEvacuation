@@ -1,11 +1,23 @@
 package Utiles;
 
 import java.awt.Color;
-import PlanEvac.Feu;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.List;
+import java.util.Iterator;
+
 import turtlekit.kernel.Turtle;
 import turtlekit.pheromone.Pheromone;
 
 public abstract class NewAgentTurtle extends Turtle  {
+	protected static int nbAgent = 0;
+	protected int id;
 	/**
 	 * number of steps throughout the simulation
 	 */
@@ -42,6 +54,15 @@ public abstract class NewAgentTurtle extends Turtle  {
 	 * traces left by the agent
 	 */
 	protected Pheromone traine;
+	/**
+	 * List of action of the agent
+	 */
+	protected List<String> actionList;
+	/**
+	 * number of action of the agent
+	 */
+	protected int nbAction;
+
 
 	/**
 	 * @param x
@@ -102,15 +123,14 @@ public abstract class NewAgentTurtle extends Turtle  {
 	protected boolean WallCollision(){	
 		return getNextPatch().getColor().getRed() == 255;
 	}
-	
+
 	/**
 	 * @return true if the turtle has the same index as the Pheromone (same index => same place on the grid)
-	 * NE MARCHE PAS  ???
 	 */	
 	protected boolean pheromoneCollision(String pheroName) {
-		return getEnvironment().getPheromone(pheroName).get(xcor(),ycor()) >  2;
+		return getEnvironment().getPheromone(getMadkitProperty("pheroName")).get(xcor(),ycor()) >  2;
 	}
-	
+
 	/**
 	 * @param n : number of steps to make 
 	 * the agents move if there isn't collision on the next patch
@@ -119,7 +139,7 @@ public abstract class NewAgentTurtle extends Turtle  {
 		if(getNextPatch() != null) {
 			if(AgentCollision())
 				fd(0);
-			else if (! WallCollision()){
+			else if (! WallCollision() && !pheromoneCollision(getMadkitProperty("pheroName"))){
 				fd(n);
 				nbPas++;
 			}			
@@ -134,11 +154,11 @@ public abstract class NewAgentTurtle extends Turtle  {
 	 * 
 	 */
 	protected void wigglec (){
-		this.randomHeading(120);
+		randomHeading(120);
 		if(getNextPatch() != null) {
 			if(AgentCollision()) 
 				fd(0);
-			else if (! WallCollision()){
+			else if (! WallCollision() && !pheromoneCollision(getMadkitProperty("pheroName"))){
 				fd(1);
 				nbPas++;
 			}			
@@ -146,7 +166,6 @@ public abstract class NewAgentTurtle extends Turtle  {
 				fd(0);
 		}
 	}
-	
 
 	/**
 	 * @return true if the agent is out of the building , false else
@@ -155,6 +174,36 @@ public abstract class NewAgentTurtle extends Turtle  {
 		return getPatchColor() == Color.green;
 	}
 
+	/**
+	 * @param action
+	 */
+	protected void addAction(String action) {
+		nbAction++;
+		actionList.add(action);
+	}
 
+	/**
+	 * @return
+	 */
+	protected String getHistory() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("AgentID : "+id +"\n");
+		for(Iterator<String>  it = actionList.iterator();it.hasNext();) {
+			String action = it.next();
+			sb.append("\n");
+			sb.append("action effectuée : "+action);
+		}	
+		return sb.toString();
+	}
+
+	
+	/**
+	 * @throws IOException 
+	 */	
+	protected void printHistory() throws IOException{
+        FileWriter wr = new FileWriter(new File("log.txt"));
+        BufferedWriter buffer = new BufferedWriter(wr);
+        buffer.write(getHistory());
+	}
 
 }

@@ -141,12 +141,19 @@ public class PlanEvacuation extends TKEnvironment{
 		return (wallTop(i,j,buffer.getWidth()) && wallBot(i,j) ) || wallLeft(i,j) && wallRight(i,j,buffer.getHeight() );
 	}
 	
+	/**
+	 * @return the Width of the Tk environnement
+	 */
 	public static int getEnvWidth(){
 		return buffer.getWidth()+arroundSize;
 	}
 	
+	/** 
+	 * @return the height of the TK environnement
+	 */
 	public static int getEnvheight(){
 		return buffer.getHeight()+arroundSize;
 	}
+	
 
 }

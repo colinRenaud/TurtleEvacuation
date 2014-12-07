@@ -6,12 +6,19 @@
 package PlanEvac;
 
 import java.awt.Color;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+
 import Utiles.NewAgentTurtle;
 import turtlekit.kernel.Turtle;
 
 public class Agent extends NewAgentTurtle {
-	
+
 	/**
 	 * color of a left agent
 	 */
@@ -32,19 +39,23 @@ public class Agent extends NewAgentTurtle {
 	 * color of a gent who follow a leader
 	 */
 	private final Color couleurSuivre = Color.orange;
-	
+
 	private int pasTmp;
-	
-	private final String fireName = "bobi";
+
+	private final String fireName = "feu";
+
 
 	/**
 	 * activate an agent 
 	 */
 	protected void activate(){
-		
 		super.activate();
+		nbAgent ++;
+		id = nbAgent;
 		nbPas = 0;
 		pasTmp= 0;
+		actionList = new LinkedList<String>();
+		nbAction = 0;
 		courage = (int)(Math.random()*100);
 		alerte = true;
 		xdep = xcor();
@@ -59,7 +70,8 @@ public class Agent extends NewAgentTurtle {
 	/**
 	 * @return true if the agent is alerted , false if not
 	 */
-	protected boolean getAlerte(){		
+	protected boolean getAlerte(){	
+		addAction("alerte");
 		return alerte;
 	}
 
@@ -113,7 +125,7 @@ public class Agent extends NewAgentTurtle {
 	protected String meneur() {	
 		if ( isOut() )
 			return "sorti";
-		if(pheromoneCollision(fireName)) 
+		if(pheromoneCollision(getMadkitProperty("pheroName"))) 
 			return "burn";
 		List<Turtle> liste = getOtherTurtlesWithRole( visibilite, true, "suiveur");
 		//plus de gens le suive, moins il avance vite
@@ -136,7 +148,7 @@ public class Agent extends NewAgentTurtle {
 	protected String suiveur(){
 		if ( isOut() )
 			return "sorti";
-		if(pheromoneCollision(fireName)) 
+		if(pheromoneCollision(getMadkitProperty("pheroName"))) 
 			return "burn";
 		List<Turtle> liste = getOtherTurtlesWithRole( visibilite, false, "meneur");
 		if (liste.isEmpty() == false){
@@ -253,23 +265,33 @@ public class Agent extends NewAgentTurtle {
 		playRole( role );
 		return "panique";
 	}
-	
+
 	/**
 	 * a agent who succes to escape the building
 	 */
-	protected void sorti(){
-		System.out.println("OUF , JE SUIS VIVANT");
+	protected String sorti(){
+		addAction("OUF , JE SUIS VIVANT");
 		killAgent(this);
+		return "end";
 	}
-	
+
 	/**
 	 * kill the agent if he is on fire
 	 */
-	protected void burn() {
-		if(pheromoneCollision(fireName) && ! isOut()) {
-			System.out.println("MERDE JE BRULE  !!!!!!!!!!!!");
-			killAgent(this);
+	protected String burn() {
+		addAction("MERDE JE BRULE  !!!!!!!!!!!!");
+		killAgent(this);
+		return "end";
+	}
+
+	protected void end() {
+		//System.out.println(getHistory());
+		try {
+			printHistory();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
+
 
 }
